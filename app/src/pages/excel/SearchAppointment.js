@@ -83,12 +83,33 @@ const SearchAppointment = () => {
         return fechaFormateada;
     }
 
+    const formatDateAndHour = (fecha) => {
+        let day = fecha.getDate();
+        let month = fecha.getMonth() + 1; // Los meses comienzan desde 0
+        let year = fecha.getFullYear();
+
+        let hour = fecha.getHours();
+        let minute = fecha.getMinutes();
+        let second = fecha.getSeconds();
+      
+        // Agregar ceros iniciales si es necesario
+        day = day < 10 ? '0' + day : day;
+        month = month < 10 ? '0' + month : month;
+
+        hour = hour < 10 ? '0' + hour : hour;
+        minute = minute < 10 ? '0' + minute : minute;
+        second = second < 10 ? '0' + second : second;
+      
+        // Crear la cadena de fecha en el formato dd/mm/YYYY
+        const fechaFormateada = `${day}/${month}/${year} ${hour}:${minute}`;
+        return fechaFormateada;
+    }
+
     const SearchProgramming = async (document) => {
         const subsidiary = jsonU.subsidiary;
         const promise = new Promise( async (resolve) => { // SEARCH IN DDBB
             const result = await axios.get(API_URL_BASE+`appointments/get/nro_sub/${document}/${subsidiary}`, config);
             resolve(result.data);
-            console.log(result.data)
         });
         promise.then( async (data_ddbb) => {
             if(data_ddbb.length > 0){
@@ -96,10 +117,13 @@ const SearchAppointment = () => {
                 setAappointments(data_ddbb)
                 ChangeAlertSuccess(true)
                 SetViewTable(true)
+                setProgramacionExcel('')
             }else{
                 ChangeAlertSuccess(false)
                 ChangeAlertFormat2_2(true)
                 SetViewTable(false)
+                setFecha(today)
+                setProgramacionExcel('NO (Manual)')
             }
             // if(data_ddbb){ // RENDER DATA OF DDBB
             //     setIdAppointment(data_ddbb.id_appointment)
@@ -145,6 +169,7 @@ const SearchAppointment = () => {
                 const fecha_excel = fecha
                 const fecha_split = fecha_excel.split("/", 3)
                 const fecha_custom = fecha_split[2] + "-" + fecha_split[1] + "-" +fecha_split[0]
+                setFecha(formatDateAndHour(new Date()))
 
                 const result = await axios.put(API_URL_BASE + `appointments/update/${idAppointment}`, {
                     date_programing: fecha_custom,
@@ -187,7 +212,16 @@ const SearchAppointment = () => {
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
         documentTitle: 'Ticket',
-        onAfterPrint: () => console.log('Print success')
+        onAfterPrint: () => {
+            console.log('Print success')
+            setIdAppointment('')
+            setTxtNumDoc('')
+            resetForm()
+            SetViewTable(false)
+            ChangeAlertSuccess(false)
+            ChangeAlertFormat2_1(false)
+            ChangeAlertFormat2_2(false)
+        }
     });
 
     const handleChange = (e) => {
@@ -200,6 +234,7 @@ const SearchAppointment = () => {
     }
 
     const handleNew = async () => {
+        setFecha(formatDateAndHour(new Date()))
         const result = await axios.post(API_URL_BASE + `appointments/store`, { // create
             date_programing: new Date(),
             nro_documento: txtNumDoc.trim(),
@@ -225,7 +260,6 @@ const SearchAppointment = () => {
             resolve(result.data[0]);
         });
         promise.then((d) => {
-            console.log(d);
             setIdAppointment(d.id_appointment);
             setFecha(d.date_programing);
             setApellidos(d.last_name);
@@ -240,7 +274,6 @@ const SearchAppointment = () => {
             setIdSubsidiaria(d.id_subsidiary)
             setFound(true)
             setStateDb(true)
-            console.log(programacionExcel)
         })
     }
 
@@ -353,6 +386,7 @@ const SearchAppointment = () => {
                                                         id='fecha'
                                                         placeholder=""
                                                         autoComplete="off"
+                                                        disabled
                                                     />
                                                 </div>
                                             </div>
