@@ -150,14 +150,14 @@ const SearchAppointment = () => {
                 const result = await axios.put(API_URL_BASE + `appointments/update/${idAppointment}`, {
                     date_programing: fecha_custom,
                     nro_documento: txtNumDoc.trim(),
-                    last_name: apellidos.toUpperCase().trim(),
-                    first_name: nombres.toUpperCase().trim(),
-                    company: empresa.toUpperCase().trim(),
+                    last_name: apellidos ? apellidos.toUpperCase().trim() : "",
+                    first_name: nombres ? nombres.toUpperCase().trim() : "",
+                    company: empresa ? empresa.toUpperCase().trim() : "",
                     subcontract: contrata ? contrata.toUpperCase().trim() : "",
-                    protocol: perfil.toUpperCase().trim(),
-                    examen_type: tipoExamen.toUpperCase().trim(),
+                    protocol: perfil ? perfil.toUpperCase().trim() : "",
+                    examen_type: tipoExamen ? tipoExamen.toUpperCase().trim() : "",
                     area: area ? area.toUpperCase().trim() : "",
-                    job_position: puesto.toUpperCase().trim(),
+                    job_position: puesto ? puesto.toUpperCase().trim() : "",
                     in_excel_programing: state_programing,
                     id_subsidiary: id_subsidiaria
                 }, config)
@@ -496,15 +496,15 @@ const SearchAppointment = () => {
                                                             </tr>
                                                             <tr>
                                                                 <th>Documento:</th>
-                                                                <td>{txtNumDoc.toUpperCase()}</td>
+                                                                <td>{txtNumDoc ? txtNumDoc.toUpperCase() : ""}</td>
                                                             </tr>
                                                             <tr >
                                                                 <th>Paciente:</th>
-                                                                <td>{apellidos.toUpperCase()} {nombres.toUpperCase()}</td>
+                                                                <td>{apellidos ? apellidos.toUpperCase() : ""} {nombres ? nombres.toUpperCase() : ""}</td>
                                                             </tr>
                                                             <tr >
                                                                 <th>Empresa:</th>
-                                                                <td>{empresa.toUpperCase()}</td>
+                                                                <td>{empresa ? empresa.toUpperCase() : ""}</td>
                                                             </tr>
                                                             <tr >
                                                                 <th> Contrata:</th>
@@ -512,11 +512,11 @@ const SearchAppointment = () => {
                                                             </tr>
                                                             <tr >
                                                                 <th>Perfil:</th>
-                                                                <td>{perfil.toUpperCase()}</td>
+                                                                <td>{perfil ? perfil.toUpperCase() : ""}</td>
                                                             </tr>
                                                             <tr >
                                                                 <th>TipoExamen:</th>
-                                                                <td>{tipoExamen.toUpperCase()}</td>
+                                                                <td>{tipoExamen ? tipoExamen.toUpperCase() : ""}</td>
                                                             </tr>
                                                             <tr >
                                                                 <th>Área:</th>
@@ -524,7 +524,7 @@ const SearchAppointment = () => {
                                                             </tr>
                                                             <tr >
                                                                 <th>Puesto:</th>
-                                                                <td>{puesto.toUpperCase()}</td>
+                                                                <td>{puesto ? puesto.toUpperCase() : ""}</td>
                                                             </tr>
                                                         </tbody>
                                                     </table>

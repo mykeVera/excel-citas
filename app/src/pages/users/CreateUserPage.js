@@ -206,7 +206,8 @@ export default function CreateUserPage() {
                                                 as="select">
                                                     <option value="">--Seleccione--</option>
                                                     <option value="1">ADMINISTRADOR</option>
-                                                    <option value="2">COLABORADOR</option>
+                                                    <option value="2">IMPORTADOR DE CITAS</option>
+                                                    <option value="3">CONSULTOR DE PROGRAMACION</option>
                                             </Field>
                                             <ErrorMessage name="id_type_user" component={() => (
                                                 <div className='error'>{errors.id_type_user}</div>

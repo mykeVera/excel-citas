@@ -147,8 +147,9 @@ const EditUserPage = () => {
                                         onChange={ (e)=> setId_type_user(e.target.value) }
                                     >
                                         <option value="">--Seleccione--</option>
-                                        <option value="1">Administrador</option>
-                                        <option value="2">Colaborador</option>
+                                        <option value="1">ADMINISTRADOR</option>
+                                        <option value="2">IMPORTADOR DE CITAS</option>
+                                        <option value="3">CONSULTOR DE PROGRAMACION</option>
                                     </select>
                                 </div>
                                 <div className='mb-3'>

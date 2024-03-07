@@ -64,7 +64,8 @@ const authenticated = async(req, res) => {
 const index = async(req, res) => {
     try {
         const connection = await getConnection();
-        await connection.query(`SELECT u.id_user,u.lastname,u.firstname,u.user,IF(u.id_type_user=1,'ADMINISTRADOR',IF(u.id_type_user=2,'COLABORADOR','SIN TIPO DE USUARIO')) AS type_user,u.id_subsidiary,s.subsidiary `+
+        await connection.query(`SELECT u.id_user,u.lastname,u.firstname,u.user,IF(u.id_type_user=1,'ADMINISTRADOR',IF(u.id_type_user=2,'IMPORTADOR DE CITAS',`+
+        `IF(u.id_type_user=3,'CONSULTOR DE PROGRAMACION','SIN TIPO DE USUARIO')))AS type_user,u.id_subsidiary,s.subsidiary `+
         `FROM users u `+
         `LEFT JOIN subsidiaries s on s.id_subsidiary=u.id_subsidiary `+
         `WHERE isnull(u.deleted_at) and user!='admin'`, async (err, result, fields) => {
