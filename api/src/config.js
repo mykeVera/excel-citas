@@ -11,5 +11,7 @@ export default {
     
     jwt_key: process.env.JWT_KEY || "",
     jwt_time_expire: process.env.JWT_TIME_EXPIRE || "",
-    jwt_cookie_expire: process.env.JWT_COOKIE_EXPIRE || ""
+    jwt_cookie_expire: process.env.JWT_COOKIE_EXPIRE || "",
+
+    port: process.env.PORT || "",
 }
