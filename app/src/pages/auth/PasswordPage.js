@@ -97,15 +97,18 @@ const PasswordPage = () => {
                                         }
                                     };
 
+                                    console.log(valores);
                                     let url = API_URL_BASE + "users/login";
                                     let res = await axios.post(url,{
                                         user: jsonU.user,
                                         pass: valores.current_pass
                                     });
                                     if(!res.data['id_user']){
+                                        console.log(res.data);
                                         ChangeAlertCurrentPass(true)
                                         setTimeout(() => ChangeAlertCurrentPass(false), 4000);
                                     }else{
+                                        console.log("SI ES LA CONTRA")
                                         ChangeAlertCurrentPass(false)
                                         //CAMBIAR CONTRASEÑA
                                         const result = await axios.put(API_URL_BASE + `users/update/pass/${jsonU.id_user}`, {

@@ -19,7 +19,8 @@ app.use(express.json());
 //app.use(cors());  // Todo el mundo (No recomendado)
 
 const whiteList = [
-    'http://localhost:8084'
+    'http://localhost:8084',
+    'http://161.132.103.78:8084',
 ];
 app.use(cors({origin:[whiteList]})) // Solo para dominios permitidos de la lista (Recomendable)
 

@@ -188,17 +188,13 @@ button {
   color: #DC3545;
 }
 
-/* @page {
-  size: 50mm 150mm;
+@page {
+  size: 80mm 120mm;
   margin: 0;
   
-} */
+}
 
 @media print {
-  @page {
-    size: 80mm 110mm;
-    margin: 0;
-  }
   body, html {
       width: 100% !important;
       background-color: white;
@@ -206,7 +202,7 @@ button {
   }
   .print-preview {
       width: 100%;
-      height: 5cm;
+      height: 29.7cm;
       margin: 0;
       border: 5px solid #000;
   }
