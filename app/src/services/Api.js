@@ -1,2 +1,1 @@
-export const API_URL_BASE = "http://localhost:3500/api/"; //LOCAL
-//export const API_URL_BASE = "http://161.132.103.78:3600/api/"; //PRODUCTION
+export const API_URL_BASE = process.env.REACT_APP_URL_API;
