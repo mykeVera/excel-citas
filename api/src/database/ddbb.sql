@@ -57,6 +57,7 @@ insert into db_excel_appointment.subsidiaries values
 (7,'MOQUEGUA',now(),null,null),
 (8,'SAN BORJA',now(),null,null),
 (9,'TALARA',now(),null,null);
+(10,'OTROS',now(),null,null);
 
 insert into db_excel_appointment.users values
 (null,'SISTEMAS','ADMIN','admin','$2a$08$SFkT5CXUfMVVD56q.d26xOCO2dLS1b2dcQXWO8/FAaE9p2A0U2nk6',1,1,now(),null,null); /*admin.pulso*/

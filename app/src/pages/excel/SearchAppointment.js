@@ -54,8 +54,6 @@ const SearchAppointment = () => {
         }
     };
 
-    console.log(jsonU.id_subsidiary)
-
     const componentRef = useRef();
 
     const resetForm = () => {
@@ -68,6 +66,7 @@ const SearchAppointment = () => {
         setTipoExamen("");
         setArea("");
         setPuesto("");
+        setProgramacionExcel("");
     }
 
     const formatearFecha = (fecha) => {
@@ -200,8 +199,7 @@ const SearchAppointment = () => {
         resetForm();
     }
 
-    const handleNew = async () => {  
-        console.log('registrando')
+    const handleNew = async () => {
         const result = await axios.post(API_URL_BASE + `appointments/store`, { // create
             date_programing: new Date(),
             nro_documento: txtNumDoc.trim(),
@@ -242,6 +240,7 @@ const SearchAppointment = () => {
             setIdSubsidiaria(d.id_subsidiary)
             setFound(true)
             setStateDb(true)
+            console.log(programacionExcel)
         })
     }
 
@@ -525,6 +524,10 @@ const SearchAppointment = () => {
                                                             <tr >
                                                                 <th>Puesto:</th>
                                                                 <td>{puesto ? puesto.toUpperCase() : ""}</td>
+                                                            </tr>
+                                                            <tr >
+                                                                <th>Programado:</th>
+                                                                <td>{programacionExcel === '' ? programacionExcel : (programacionExcel === 1 ? "SI (Mediweb)" : "NO (Manual)")}</td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
