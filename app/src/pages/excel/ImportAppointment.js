@@ -126,10 +126,9 @@ const ImportAppointment = () => {
             const today = new Date()
             const fecha_formateada = formatDate2(today)
             const promise = new Promise( async (resolve) => { // SEARCH IN DDBB
-                console.log('entra')
                 console.log(config)
                 const result_softdelete = await axios.put(API_URL_BASE+`appointments/delete/${fecha_formateada}`);
-                resolve("ok");
+                resolve(result_softdelete.data);
             });
             promise.then( async (data_confirmed) => {
                 if(data_confirmed){
@@ -159,6 +158,10 @@ const ImportAppointment = () => {
                                     examen_type: it['TIPO DE EXAMEN'],
                                     area: it['AREA'],
                                     job_position: it['PUESTO'],
+                                    project: null,
+                                    cost_center: null,
+                                    person_programmed: null,
+                                    observation: it['OBSERVACION'],
                                     in_excel_programing: 1,
                                     id_subsidiary: data_appointmen.id_subsidiary
                                 }, config)

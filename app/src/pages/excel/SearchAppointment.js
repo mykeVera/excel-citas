@@ -36,9 +36,19 @@ const SearchAppointment = () => {
     let [tipoExamen, setTipoExamen] = useState('');
     let [area, setArea] = useState('');
     let [puesto, setPuesto] = useState('');
+    let [proyecto, setProyecto] = useState(null);
+    let [centroCostos, setCentroCostos] = useState(null);
+    let [personaProgramo, setPersonaProgramo] = useState(null);
+    let [observacion, setObservacion] = useState(null);
+    let [ticketInicio, setTicketInicio] = useState(null);
+    let [ticketFinal, setTicketFinal] = useState(null);
+    let [ticketGenerar, setTicketGenerar] = useState(null);
+    let [programacionExcel, setProgramacionExcel] = useState('');
     let [id_subsidiaria, setIdSubsidiaria] = useState(0);
 
-    let [programacionExcel, setProgramacionExcel] = useState('');
+    let [time1, setTime1] = useState(null);
+    let [time2, setTime2] = useState(null);
+
     let [today, setToday] = useState('');
 
     useEffect(() => {
@@ -66,6 +76,13 @@ const SearchAppointment = () => {
         setTipoExamen("");
         setArea("");
         setPuesto("");
+        setProyecto("");
+        setCentroCostos("");
+        setPersonaProgramo("");
+        setObservacion("");
+        setTicketInicio("");
+        setTicketFinal("");
+        setTicketGenerar("");
         setProgramacionExcel("");
     }
 
@@ -103,6 +120,43 @@ const SearchAppointment = () => {
         // Crear la cadena de fecha en el formato dd/mm/YYYY
         const fechaFormateada = `${day}/${month}/${year} ${hour}:${minute}`;
         return fechaFormateada;
+    }
+
+    const formatDateAndHourDB = (fecha) => {
+        let day = fecha.getDate();
+        let month = fecha.getMonth() + 1; // Los meses comienzan desde 0
+        let year = fecha.getFullYear();
+
+        let hour = fecha.getHours();
+        let minute = fecha.getMinutes();
+        let second = fecha.getSeconds();
+      
+        // Agregar ceros iniciales si es necesario
+        day = day < 10 ? '0' + day : day;
+        month = month < 10 ? '0' + month : month;
+
+        hour = hour < 10 ? '0' + hour : hour;
+        minute = minute < 10 ? '0' + minute : minute;
+        second = second < 10 ? '0' + second : second;
+      
+        // Crear la cadena de fecha en el formato dd/mm/YYYY
+        const fechaFormateada = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        return fechaFormateada;
+    }
+
+    const formatTime = (fecha) => {
+        let hour = fecha.getHours();
+        let minute = fecha.getMinutes();
+        let second = fecha.getSeconds();
+      
+        // Agregar ceros iniciales si es necesario
+        hour = hour < 10 ? '0' + hour : hour;
+        minute = minute < 10 ? '0' + minute : minute;
+        second = second < 10 ? '0' + second : second;
+      
+        // Crear la cadena de fecha en el formato dd/mm/YYYY
+        const TimeFormat = `${hour}:${minute}:${second}`;
+        return TimeFormat;
     }
 
     const SearchProgramming = async (document) => {
@@ -147,6 +201,7 @@ const SearchAppointment = () => {
 
     const handleClick = () => {
         resetForm();
+        setTime1(formatTime(new Date()))
         ChangeAlertFormat2_1(false)
         ChangeAlertFormat2_2(false)
       
@@ -169,7 +224,7 @@ const SearchAppointment = () => {
                 const fecha_excel = fecha
                 const fecha_split = fecha_excel.split("/", 3)
                 const fecha_custom = fecha_split[2] + "-" + fecha_split[1] + "-" +fecha_split[0]
-                setFecha(formatDateAndHour(new Date()))
+                setFecha(ticketGenerar ? formatDateAndHour(new Date(ticketGenerar)) : formatDateAndHour(new Date()));
 
                 const result = await axios.put(API_URL_BASE + `appointments/update/${idAppointment}`, {
                     date_programing: fecha_custom,
@@ -177,11 +232,18 @@ const SearchAppointment = () => {
                     last_name: apellidos ? apellidos.toUpperCase().trim() : "",
                     first_name: nombres ? nombres.toUpperCase().trim() : "",
                     company: empresa ? empresa.toUpperCase().trim() : "",
-                    subcontract: contrata ? contrata.toUpperCase().trim() : "",
-                    protocol: perfil ? perfil.toUpperCase().trim() : "",
-                    examen_type: tipoExamen ? tipoExamen.toUpperCase().trim() : "",
-                    area: area ? area.toUpperCase().trim() : "",
-                    job_position: puesto ? puesto.toUpperCase().trim() : "",
+                    subcontract: contrata ? contrata.toUpperCase().trim() : null,
+                    protocol: perfil ? perfil.toUpperCase().trim() : null,
+                    examen_type: tipoExamen ? tipoExamen.toUpperCase().trim() : null,
+                    area: area ? area.toUpperCase().trim() : null,
+                    job_position: puesto ? puesto.toUpperCase().trim() : null,
+                    project: proyecto ? proyecto.toUpperCase().trim() : null,
+                    cost_center: centroCostos ?  centroCostos.toUpperCase().trim() : null,
+                    person_programmed: personaProgramo ? personaProgramo.toUpperCase().trim() : null,
+                    observation: observacion ? observacion.toUpperCase().trim() : null,
+                    ticket_time_init: ticketInicio ? ticketInicio : time1,
+                    ticket_time_finish: ticketFinal ? ticketFinal : formatTime(new Date()),
+                    ticket_generate: ticketGenerar ? String(formatDateAndHourDB(new Date(ticketGenerar))) : String(formatDateAndHourDB(new Date())),
                     in_excel_programing: state_programing,
                     id_subsidiary: id_subsidiaria
                 }, config)
@@ -234,9 +296,9 @@ const SearchAppointment = () => {
     }
 
     const handleNew = async () => {
-        setFecha(formatDateAndHour(new Date()))
+        setFecha(ticketGenerar ? formatDateAndHour(new Date(ticketGenerar)) : formatDateAndHour(new Date()));
         const result = await axios.post(API_URL_BASE + `appointments/store`, { // create
-            date_programing: new Date(),
+            date_programing: formatDateAndHourDB(new Date()),
             nro_documento: txtNumDoc.trim(),
             last_name: apellidos.toUpperCase().trim(),
             first_name: nombres.toUpperCase().trim(),
@@ -246,6 +308,13 @@ const SearchAppointment = () => {
             examen_type: tipoExamen.toUpperCase().trim(),
             area: area.toUpperCase().trim(),
             job_position: puesto.toUpperCase().trim(),
+            project: proyecto ? proyecto.toUpperCase().trim() : null,
+            cost_center: centroCostos ?  centroCostos.toUpperCase().trim() : null,
+            person_programmed: personaProgramo ? personaProgramo.toUpperCase().trim() : null,
+            observation: observacion ? observacion.toUpperCase().trim() : null,
+            ticket_time_init: ticketInicio ? ticketInicio : time1,
+            ticket_time_finish: ticketFinal ? ticketFinal : formatTime(new Date()),
+            ticket_generate: ticketGenerar ? String(formatDateAndHourDB(new Date(ticketGenerar))) : String(formatDateAndHourDB(new Date())),
             in_excel_programing: 0,
             id_subsidiary: jsonU.id_subsidiary
         }, config)
@@ -255,11 +324,13 @@ const SearchAppointment = () => {
     }
 
     const renderPatient = async (id_appointment) => {  
+        console.log(time1)
         const promise = new Promise( async (resolve) => { // SEARCH IN DDBB
             const result = await axios.get(API_URL_BASE+`appointments/get/id/${id_appointment}`, config);
             resolve(result.data[0]);
         });
         promise.then((d) => {
+            console.log(d)
             setIdAppointment(d.id_appointment);
             setFecha(d.date_programing);
             setApellidos(d.last_name);
@@ -270,10 +341,17 @@ const SearchAppointment = () => {
             setTipoExamen(d.examen_type);
             setArea(d.area);
             setPuesto(d.job_position);
+            setProyecto(d.project);
+            setCentroCostos(d.cost_center);
+            setPersonaProgramo(d.person_programmed);
+            setObservacion(d.observation);
+            setTicketInicio(d.ticket_time_init);
+            setTicketFinal(d.ticket_time_finish);
+            setTicketGenerar(d.ticket_generate);
             setProgramacionExcel(d.in_excel_programing);
-            setIdSubsidiaria(d.id_subsidiary)
-            setFound(true)
-            setStateDb(true)
+            setIdSubsidiaria(d.id_subsidiary);
+            setFound(true);
+            setStateDb(true);
         })
     }
 
@@ -513,6 +591,68 @@ const SearchAppointment = () => {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label>Proyecto</label>
+                                                    <input
+                                                        type="text"
+                                                        value={proyecto ? proyecto : ""}
+                                                        onChange={(e) => setProyecto(e.target.value)}
+                                                        className="form-control"
+                                                        id='proyecto'
+                                                        placeholder=""
+                                                        autoComplete="off"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label>Centro de Costos</label>
+                                                    <input
+                                                        type="text"
+                                                        value={centroCostos ? centroCostos : ""}
+                                                        onChange={(e) => setCentroCostos(e.target.value)}
+                                                        className="form-control"
+                                                        id='centro-costos'
+                                                        placeholder=""
+                                                        autoComplete="off"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label>Persona que programó</label>
+                                                    <input
+                                                        type="text"
+                                                        value={personaProgramo ? personaProgramo : ""}
+                                                        onChange={(e) => setPersonaProgramo(e.target.value)}
+                                                        className="form-control"
+                                                        id='persona-programo'
+                                                        placeholder=""
+                                                        autoComplete="off"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label>Observaciones</label>
+                                                    <textarea
+                                                        type="text"
+                                                        value={observacion ? observacion : ""}
+                                                        onChange={(e) => setObservacion(e.target.value)}
+                                                        className="form-control"
+                                                        id='observacion'
+                                                        placeholder=""
+                                                        autoComplete="off"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="col-md-4 ticket">
@@ -521,46 +661,62 @@ const SearchAppointment = () => {
                                                 <br/>
                                                 <h3 className='text-center'>Ticket de programación</h3>
                                                 <center>
-                                                    <table>
+                                                    <table className='table-ticket'>
                                                         <tbody>
                                                             <tr>
-                                                                <th>Fecha:</th>
+                                                                <th className='title-column'>Fecha:</th>
                                                                 <td>{fecha}</td>
                                                             </tr>
                                                             <tr>
-                                                                <th>Documento:</th>
+                                                                <th className='title-column'>Documento:</th>
                                                                 <td>{txtNumDoc ? txtNumDoc.toUpperCase() : ""}</td>
                                                             </tr>
-                                                            <tr >
-                                                                <th>Paciente:</th>
+                                                            <tr>
+                                                                <th className='title-column'>Paciente:</th>
                                                                 <td>{apellidos ? apellidos.toUpperCase() : ""} {nombres ? nombres.toUpperCase() : ""}</td>
                                                             </tr>
-                                                            <tr >
-                                                                <th>Empresa:</th>
-                                                                <td>{empresa ? empresa.toUpperCase() : ""}</td>
+                                                            <tr>
+                                                                <th className='title-column'>Proyecto:</th>
+                                                                <td>{proyecto ? proyecto.toUpperCase() : ""}</td>
                                                             </tr>
-                                                            <tr >
-                                                                <th> Contrata:</th>
-                                                                <td>{contrata ? contrata.toUpperCase() : ""}</td>
+                                                            <tr>
+                                                                <th className='title-column'>CC:</th>
+                                                                <td>{centroCostos ? centroCostos.toUpperCase() : ""}</td>
                                                             </tr>
-                                                            <tr >
-                                                                <th>Perfil:</th>
-                                                                <td>{perfil ? perfil.toUpperCase() : ""}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <th>TipoExamen:</th>
-                                                                <td>{tipoExamen ? tipoExamen.toUpperCase() : ""}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <th>Área:</th>
+                                                            <tr>
+                                                                <th className='title-column'>Área:</th>
                                                                 <td>{area ? area.toUpperCase() : ""}</td>
                                                             </tr>
-                                                            <tr >
-                                                                <th>Puesto:</th>
+                                                            <tr>
+                                                                <th className='title-column'>Puesto:</th>
                                                                 <td>{puesto ? puesto.toUpperCase() : ""}</td>
                                                             </tr>
-                                                            <tr >
-                                                                <th>Programado:</th>
+                                                            <tr>
+                                                                <th className='title-column'>Perfil:</th>
+                                                                <td>{perfil ? perfil.toUpperCase() : ""}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th className='title-column'>T. Examen:</th>
+                                                                <td>{tipoExamen ? tipoExamen.toUpperCase() : ""}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th className='title-column'>Empresa:</th>
+                                                                <td>{empresa ? empresa.toUpperCase() : ""}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th className='title-column'>Contrata:</th>
+                                                                <td>{contrata ? contrata.toUpperCase() : ""}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th className='title-column'>Programó:</th>
+                                                                <td>{personaProgramo ? personaProgramo.toUpperCase() : ""}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th className='title-column'>Observación:</th>
+                                                                <td>{observacion ? observacion.toUpperCase() : ""}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th className='title-column'>Programado:</th>
                                                                 <td>{programacionExcel === '' ? programacionExcel : (programacionExcel === 1 ? "SI (Mediweb)" : "NO (Manual)")}</td>
                                                             </tr>
                                                         </tbody>

@@ -226,6 +226,10 @@ tr td{
   /* border: black solid 1px; */
 }
 
+.table-ticket .title-column{
+  text-align: right;
+}
+
 /* .col-md-7 {
   font-weight: 300;
   display: inline-block;

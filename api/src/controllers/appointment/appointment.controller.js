@@ -50,8 +50,11 @@ const getAppointmentById = async(req, res) => {
         const connection = await getConnection();
         await connection.query("SELECT a.id_appointment, DATE_FORMAT(a.date_programing,'%d/%m/%Y') as date_programing, a.nro_documento,"+
         "a.last_name, a.first_name, a.company, a.subcontract, a.protocol, a.examen_type, a.area, a.job_position,"+
-        "a.in_excel_programing, a.id_subsidiary, s.subsidiary, DATE_FORMAT(a.created_at,'%d/%m/%Y %H:%i:%S') as create_at,"+
-        "DATE_FORMAT(a.updated_at,'%d/%m/%Y %H:%i:%S') as update_at, DATE_FORMAT(a.deleted_at,'%d/%m/%Y %H:%i:%S') as deleted_at "+
+        "a.project, a.cost_center, a.person_programmed, a.observation, a.ticket_time_init, a.ticket_time_finish,"+
+        "a.ticket_generate, a.in_excel_programing, a.id_subsidiary, s.subsidiary,"+
+        "DATE_FORMAT(a.created_at,'%d/%m/%Y %H:%i:%S') as create_at,"+
+        "DATE_FORMAT(a.updated_at,'%d/%m/%Y %H:%i:%S') as update_at,"+
+        "DATE_FORMAT(a.deleted_at,'%d/%m/%Y %H:%i:%S') as deleted_at "+
         "FROM appointments a "+
         "LEFT JOIN subsidiaries s ON s.id_subsidiary=a.id_subsidiary "+
         "WHERE a.date_programing = DATE(NOW()) "+
@@ -76,8 +79,11 @@ const getAppointmentByNroDocument = async(req, res) => {
         const connection = await getConnection();
         await connection.query("SELECT a.id_appointment, DATE_FORMAT(a.date_programing,'%d/%m/%Y') as date_programing, a.nro_documento,"+
         "a.last_name, a.first_name, a.company, a.subcontract, a.protocol, a.examen_type, a.area, a.job_position,"+
-        "a.in_excel_programing, a.id_subsidiary, s.subsidiary, DATE_FORMAT(a.created_at,'%d/%m/%Y %H:%i:%S') as create_at,"+
-        "DATE_FORMAT(a.updated_at,'%d/%m/%Y %H:%i:%S') as update_at DATE_FORMAT(a.deleted_at,'%d/%m/%Y %H:%i:%S') as deleted_at "+
+        "a.project, a.cost_center, a.person_programmed, a.observation, a.ticket_time_init, a.ticket_time_finish,"+
+        "a.ticket_generate, a.in_excel_programing, a.id_subsidiary, s.subsidiary,"+
+        "DATE_FORMAT(a.created_at,'%d/%m/%Y %H:%i:%S') as create_at,"+
+        "DATE_FORMAT(a.updated_at,'%d/%m/%Y %H:%i:%S') as update_at,"+
+        "DATE_FORMAT(a.deleted_at,'%d/%m/%Y %H:%i:%S') as deleted_at "+
         "FROM appointments a "+
         "LEFT JOIN subsidiaries s ON s.id_subsidiary=a.id_subsidiary "+
         "WHERE a.date_programing = DATE(NOW()) "+
@@ -123,9 +129,9 @@ const getAppointmentByNroDocumentAndSubsidiary = async(req, res) => {
 
 const store = async(req, res) => {
     try {
-        const { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, in_excel_programing, id_subsidiary } = req.body;
+        const { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, project, cost_center, person_programmed, observation, ticket_time_init, ticket_time_finish, ticket_generate, in_excel_programing, id_subsidiary } = req.body;
 
-        const appointment = { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, in_excel_programing, id_subsidiary };
+        const appointment = { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, project, cost_center, person_programmed, observation, ticket_time_init, ticket_time_finish, ticket_generate, in_excel_programing, id_subsidiary };
         const connection = await getConnection();
         const result = await connection.query("INSERT INTO appointments set ?, created_at=now(), updated_at=now()", appointment);
         res.json({message: "Appointment added", insertId: result.insertId});
@@ -138,9 +144,9 @@ const store = async(req, res) => {
 const update = async(req, res) => {
     try {
         const { id_appointment } = req.params;
-        const { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, in_excel_programing, id_subsidiary } = req.body;
+        const { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, project, cost_center, person_programmed, observation, ticket_time_init, ticket_time_finish, ticket_generate, in_excel_programing, id_subsidiary } = req.body;
 
-        const appointment = { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, in_excel_programing, id_subsidiary };
+        const appointment = { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, project, cost_center, person_programmed, observation, ticket_time_init, ticket_time_finish, ticket_generate, in_excel_programing, id_subsidiary };
         const connection = await getConnection();
         const result = await connection.query("UPDATE appointments set ?, updated_at=now() where id_appointment=?", [appointment, id_appointment]);
         res.json({message: "Appointment updated", affectedRows: result.affectedRows, updateId: id_appointment});

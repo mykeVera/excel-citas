@@ -61,3 +61,15 @@ insert into db_excel_appointment.subsidiaries values
 
 insert into db_excel_appointment.users values
 (null,'SISTEMAS','ADMIN','admin','$2a$08$SFkT5CXUfMVVD56q.d26xOCO2dLS1b2dcQXWO8/FAaE9p2A0U2nk6',1,1,now(),null,null); /*admin.pulso*/
+
+alter table appointments
+add column project varchar(60) after job_position,
+add column cost_center varchar(25) after project,
+add column person_programmed varchar(60) after cost_center,
+add column observation varchar(200) after person_programmed,
+add column ticket_time_init time after observation,
+add column ticket_time_finish time after ticket_time_init,
+add column ticket_generate datetime after ticket_time_finish;
+
+alter table subsidiaries
+add column ticket_limit int after subsidiary;
