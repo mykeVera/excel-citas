@@ -25,8 +25,11 @@ const getAppointmentAll = async(req, res) => {
         const connection = await getConnection();
         await connection.query("SELECT a.id_appointment, DATE_FORMAT(a.date_programing,'%d/%m/%Y') as date_programing, a.nro_documento,"+
         "a.last_name, a.first_name, a.company, a.subcontract, a.protocol, a.examen_type, a.area, a.job_position,"+
-        "a.in_excel_programing, a.id_subsidiary, s.subsidiary, DATE_FORMAT(a.created_at,'%d/%m/%Y %H:%i:%S') as created_at,"+
-        "DATE_FORMAT(a.updated_at,'%d/%m/%Y %H:%i:%S') as updated_at, DATE_FORMAT(a.deleted_at,'%d/%m/%Y %H:%i:%S') as deleted_at "+
+        "a.project, a.cost_center, a.person_programmed, a.observation, a.ticket_time_init, a.ticket_time_finish,"+
+        "a.ticket_generate, a.in_excel_programing, a.id_subsidiary, s.subsidiary,"+
+        "DATE_FORMAT(a.created_at,'%d/%m/%Y %H:%i:%S') as created_at,"+
+        "DATE_FORMAT(a.updated_at,'%d/%m/%Y %H:%i:%S') as updated_at,"+
+        "DATE_FORMAT(a.deleted_at,'%d/%m/%Y %H:%i:%S') as deleted_at "+
         "FROM appointments a "+
         "LEFT JOIN subsidiaries s ON s.id_subsidiary=a.id_subsidiary "+
         "WHERE a.deleted_at IS NULL AND date(a.created_at) between ? AND ?", [date1, date2], async (err, result, fields) => {

@@ -11,7 +11,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from 'moment';
 
-
 const ReportAppointments = () => {
 
     Authenticated();
@@ -33,6 +32,59 @@ const ReportAppointments = () => {
     const [startDate, setStartDate] = useState(new Date());
     const [startDate2, setStartDate2] = useState(new Date());
 
+    const restarTiempos = (tiempo1, tiempo2) => {
+      // Parsea los tiempos en segundos
+      const tiempo1Segundos = obtenerSegundosDesdeTiempo(tiempo1);
+      const tiempo2Segundos = obtenerSegundosDesdeTiempo(tiempo2);
+    
+      // Realiza la resta
+      const diferenciaSegundos = tiempo1Segundos - tiempo2Segundos;
+    
+      // Convierte la diferencia nuevamente a formato HH:mm:ss
+      const resultado = obtenerTiempoDesdeSegundos(diferenciaSegundos);
+    
+      return resultado;
+    }
+    
+    const obtenerSegundosDesdeTiempo = (tiempo) => {
+      const partes = tiempo.split(":");
+      const horas = parseInt(partes[0], 10) * 3600;
+      const minutos = parseInt(partes[1], 10) * 60;
+      const segundos = parseInt(partes[2], 10);
+    
+      return horas + minutos + segundos;
+    }
+    
+    const obtenerTiempoDesdeSegundos = (segundos) => {
+      const horas = Math.floor(segundos / 3600);
+      const minutos = Math.floor((segundos % 3600) / 60);
+      const segundosRestantes = segundos % 60;
+    
+      // Formatea el resultado
+      const resultado = `${agregarCeroAlInicio(horas)}:${agregarCeroAlInicio(minutos)}:${agregarCeroAlInicio(segundosRestantes)}`;
+    
+      return resultado;
+    }
+    
+    const agregarCeroAlInicio = (valor) => {
+      return valor < 10 ? `0${valor}` : valor;
+    }
+
+    const formatTime = (fecha) => {
+      let hour = fecha.getHours();
+      let minute = fecha.getMinutes();
+      let second = fecha.getSeconds();
+    
+      // Agregar ceros iniciales si es necesario
+      hour = hour < 10 ? '0' + hour : hour;
+      minute = minute < 10 ? '0' + minute : minute;
+      second = second < 10 ? '0' + second : second;
+    
+      // Crear la cadena de fecha en el formato dd/mm/YYYY
+      const TimeFormat = `${hour}:${minute}:${second}`;
+      return TimeFormat;
+    }
+
     const searchAppointmentByRangeDate = async (e) => {
       e.preventDefault();
       setViewMessageError(false)
@@ -47,6 +99,7 @@ const ReportAppointments = () => {
       });
       promise.then( async (r) => {
         const data = r.data
+
         if(data){
           setViewMessageError(false)
           
@@ -61,8 +114,14 @@ const ReportAppointments = () => {
             H: "TIPO DE EXAMEN",
             I: "AREA",
             J: "PUESTO",
-            K: "PROGRAMADO EN MW",
-            L: "SEDE"
+            K: "PROYECTO",
+            L: "CENTRO DE COSTOS",
+            M: "PERSONA QUE PROGRAMO",
+            N: "OBSERVACION",
+            O: "PROGRAMADO EN MW",
+            P: "SEDE",
+            Q: "HORA DE GENERACIÓN DEL TICKET",
+            R: "TIEMPO DE GENERACIÓN DEL TICKET"
           }];
           data.map((a) => {
             let in_excel = ''
@@ -71,6 +130,15 @@ const ReportAppointments = () => {
             }else{
               in_excel = "NO"
             }
+            let time_generate = '';
+            if(a.ticket_time_init && a.ticket_time_finish){
+              time_generate = restarTiempos(a.ticket_time_finish, a.ticket_time_init);
+            }
+            let ticket_generate = '';
+            if(a.ticket_generate){
+              ticket_generate = formatTime(new Date(a.ticket_generate))
+            }
+
             tabla.push({
               A: a.date_programing,
               B: a.nro_documento,
@@ -82,8 +150,14 @@ const ReportAppointments = () => {
               H: a.examen_type,
               I: a.area,
               J: a.job_position,
-              K: in_excel,
-              L: a.subsidiary
+              K: a.project,
+              L: a.cost_center,
+              M: a.person_programmed,
+              N: a.observation,
+              O: in_excel,
+              P: a.subsidiary,
+              Q: ticket_generate,
+              R: time_generate
             });
           });
           const datafinal = [...tabla];
@@ -91,7 +165,7 @@ const ReportAppointments = () => {
           setTimeout (() => {
             const libro = XLSX.utils.book_new();
             const hoja = XLSX.utils.json_to_sheet(datafinal, {skipHeader: true});
-            const longitudes = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30];
+            const longitudes = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30];
             let propiedades = [];
             longitudes.map((col) => {
               propiedades.push({
