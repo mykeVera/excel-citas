@@ -316,3 +316,7 @@ tr td{
   border: #157347 2px dashed;
 }
 
+.alert-limit{
+  color: #DC3545;
+}
+

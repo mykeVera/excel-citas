@@ -130,6 +130,27 @@ const getAppointmentByNroDocumentAndSubsidiary = async(req, res) => {
     } 
 };
 
+const getTicketStatusBySubsidiary = async(req, res) => {
+    
+    try {
+        const { id_subsidiary } = req.params;
+        const { date_programing } = req.params;
+        const connection = await getConnection();
+        await connection.query("SELECT count(ticket_generate) as ticket_status "+
+        "FROM appointments "+
+        "WHERE id_subsidiary = ? and date_programing = ? and ticket_generate IS NOT NULL", [id_subsidiary, date_programing], async (err, result, fields) => {
+            if(err){
+                return console.log(err);
+            }
+            res.json(result);
+        });
+    }
+    catch (error) {
+        res.status(500);
+        res.send(error.message);
+    } 
+};
+
 const store = async(req, res) => {
     try {
         const { date_programing, nro_documento, last_name, first_name, company, subcontract, protocol, examen_type, area, job_position, project, cost_center, person_programmed, observation, ticket_time_init, ticket_time_finish, ticket_generate, in_excel_programing, id_subsidiary } = req.body;
@@ -179,6 +200,7 @@ export const methods = {
     getAppointmentById,
     getAppointmentByNroDocument,
     getAppointmentByNroDocumentAndSubsidiary,
+    getTicketStatusBySubsidiary,
     store,
     update,
     softdelete

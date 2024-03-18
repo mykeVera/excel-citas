@@ -75,7 +75,7 @@ const EditUserPage = () => {
             <div className="card card-padding">
                 <div className="row page-titles">
                     <div className="col-md-5" >
-                        <h3 className="text-themecolor">Edit Usuario</h3>
+                        <h3 className="text-themecolor">Editar Usuario</h3>
                     </div>
                     <div className="col-md-7">
                         <ol className="breadcrumb right">

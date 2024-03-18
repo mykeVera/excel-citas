@@ -88,17 +88,27 @@ const Aside = () => {
                                 </MenuItem>
                             </SubMenu>
                             {(typeUser1) && 
-                                <SubMenu
-                                    title="Usuarios del Sistema"
-                                    icon={<FontAwesomeIcon icon={faUser} />}
-                                >
-                                    <MenuItem>
-                                        <Link to={"/main/users"}>Usuarios</Link>
-                                    </MenuItem>
-                                    <MenuItem>
-                                        <Link to={"/main/users/create"}>Nuevo Usuario</Link>
-                                    </MenuItem>
-                                </SubMenu>
+                                <span>
+                                    <SubMenu
+                                        title="Usuarios del Sistema"
+                                        icon={<FontAwesomeIcon icon={faUser} />}
+                                    >
+                                        <MenuItem>
+                                            <Link to={"/main/users"}>Usuarios</Link>
+                                        </MenuItem>
+                                        <MenuItem>
+                                            <Link to={"/main/users/create"}>Nuevo Usuario</Link>
+                                        </MenuItem>
+                                    </SubMenu>
+                                    <SubMenu
+                                        title="Sedes"
+                                        icon={<FontAwesomeIcon icon={faUser} />}
+                                    >
+                                        <MenuItem>
+                                            <Link to={"/main/subsidiaries"}>Sedes</Link>
+                                        </MenuItem>
+                                    </SubMenu>
+                                </span>
                             }
                             <SubMenu
                                 title="Programaciones"

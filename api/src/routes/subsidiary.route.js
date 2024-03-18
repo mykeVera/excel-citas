@@ -5,6 +5,8 @@ import { methods as tokenController }  from "./../controllers/security/token.con
 const router = Router();
 
 router.get("/", tokenController.verifyToken, subsidiaryController.index);
+router.put("/update/:id_subsidiary", tokenController.verifyToken, subsidiaryController.update);
+router.get("/get_by_id/:id_subsidiary", tokenController.verifyToken, subsidiaryController.getSubsidiaryById);
 router.get("/get/:subsidiary", tokenController.verifyToken, subsidiaryController.getSubsidiaryByDescription);
 
 export default router;

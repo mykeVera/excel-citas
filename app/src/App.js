@@ -16,6 +16,9 @@ import ImportAppointment from "./pages/excel/ImportAppointment";
 import SearchAppointment from "./pages/excel/SearchAppointment";
 import ReportAppointment from "./pages/reports/ReportAppointments";
 
+import SubsidiariesPage from "./pages/subsidiaries/SubsidiariesPage";
+import EditSubsidiaryPage from "./pages/subsidiaries/EditSubsidiaryPage";
+
 import TestPrintPage from "./pages/excel/TestPrint";
 
 const App = () => {
@@ -36,6 +39,9 @@ const App = () => {
         <Route path="appointment/import" element={<ImportAppointment />} />
         <Route path="appointment/search" element={<SearchAppointment />} />
         <Route path="appointment/report" element={<ReportAppointment />} />
+
+        <Route path="subsidiaries" element={<SubsidiariesPage />} />
+        <Route path="subsidiaries/edit/:id_subsidiary" element={<EditSubsidiaryPage />} />
 
         <Route path="print" element={<TestPrintPage />} />
       </Route>

@@ -137,6 +137,7 @@ const ImportAppointment = () => {
                             const promise = new Promise( async (resolve) => { // SEARCH IN DDBB
                                 const result_subsidiary = await axios.get(API_URL_BASE+`subsidiaries/get/${it['LOCAL']}`, config);
                                 resolve(result_subsidiary.data[0]);
+                                console.log(result_subsidiary.data[0])
                             });
                             promise.then( async (data_appointmen) => {
                                 cont++;
@@ -145,7 +146,7 @@ const ImportAppointment = () => {
                                 const fecha_excel = String(it['FECHA DE PROGRAMACION'])
                                 const fecha_split = fecha_excel.split("-", 3)
                                 const fecha_custom = fecha_split[1] + "/" + fecha_split[0] + "/" +fecha_split[2]
-                                const fecha_format = new Date(fecha_custom)
+                                const fecha_format = formatDate2(new Date(fecha_custom))
     
                                 const result = await axios.post(API_URL_BASE + `appointments/store`, { // CREATE
                                     date_programing: fecha_format,

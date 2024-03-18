@@ -20,6 +20,14 @@ const SearchAppointment = () => {
     const [alertFormat2_2, ChangeAlertFormat2_2] = useState();
     const [viewTable, SetViewTable] = useState(false);
     
+    const getU = GetCookie('_userIn_');
+    const jsonU = JSON.parse(getU);
+    const config = {
+        headers: {
+            Authorization: `Bearer `+jsonU.token
+        }
+    };
+
     const [found, setFound] = useState(false);
 
     let [idAppointment, setIdAppointment]  = useState('');
@@ -49,20 +57,38 @@ const SearchAppointment = () => {
     let [time1, setTime1] = useState(null);
     let [time2, setTime2] = useState(null);
 
+    let [ticketLimit, setTicketLimit] = useState(false);
+
     let [today, setToday] = useState('');
 
     useEffect(() => {
         const fecha_today = new Date()
-        setToday(formatearFecha(fecha_today))
-    });
+        setToday(formatearFecha(fecha_today));
 
-    const getU = GetCookie('_userIn_');
-    const jsonU = JSON.parse(getU);
-    const config = {
-        headers: {
-            Authorization: `Bearer `+jsonU.token
-        }
-    };
+        let fecha_today2 = new Date()
+        fecha_today2 = formatearFechaDB(fecha_today2)
+
+        const promise = new Promise( async (resolve) => {
+            const result = await axios.get(API_URL_BASE+`appointments/get/status_ticket/${jsonU.id_subsidiary}/${fecha_today2}`, config);
+            resolve(result.data[0].ticket_status);
+        });
+        promise.then( async (tickets_emit) => {
+            const promise2 = new Promise( async (resolve) => {
+                const result2 = await axios.get(API_URL_BASE+`subsidiaries/get_by_id/${jsonU.id_subsidiary}`,config);
+                resolve(result2.data[0].ticket_limit);
+            });
+            promise2.then( async (tickets_limit) => {
+                console.log(parseInt(tickets_emit))
+                console.log(parseInt(tickets_limit))
+                if(parseInt(tickets_emit) >= parseInt(tickets_limit)){
+                    setTicketLimit(true)
+                }else{
+                    setTicketLimit(false)
+                }
+            });
+        });
+
+    });
 
     const componentRef = useRef();
 
@@ -97,6 +123,20 @@ const SearchAppointment = () => {
       
         // Crear la cadena de fecha en el formato dd/mm/YYYY
         const fechaFormateada = dia + '/' + mes + '/' + año;
+        return fechaFormateada;
+    }
+
+    const formatearFechaDB = (fecha) => {
+        let dia = fecha.getDate();
+        let mes = fecha.getMonth() + 1; // Los meses comienzan desde 0
+        let año = fecha.getFullYear();
+      
+        // Agregar ceros iniciales si es necesario
+        dia = dia < 10 ? '0' + dia : dia;
+        mes = mes < 10 ? '0' + mes : mes;
+      
+        // Crear la cadena de fecha en el formato YYYY-mm-dd
+        const fechaFormateada = año + '-' + mes + '-' + dia;
         return fechaFormateada;
     }
 
@@ -224,7 +264,7 @@ const SearchAppointment = () => {
                 const fecha_excel = fecha
                 const fecha_split = fecha_excel.split("/", 3)
                 const fecha_custom = fecha_split[2] + "-" + fecha_split[1] + "-" +fecha_split[0]
-                setFecha(ticketGenerar ? formatDateAndHour(new Date(ticketGenerar)) : formatDateAndHour(new Date()));
+                // setFecha(ticketGenerar ? formatDateAndHour(new Date(ticketGenerar)) : formatDateAndHour(new Date()));
 
                 const result = await axios.put(API_URL_BASE + `appointments/update/${idAppointment}`, {
                     date_programing: fecha_custom,
@@ -296,7 +336,7 @@ const SearchAppointment = () => {
     }
 
     const handleNew = async () => {
-        setFecha(ticketGenerar ? formatDateAndHour(new Date(ticketGenerar)) : formatDateAndHour(new Date()));
+        // setFecha(ticketGenerar ? formatDateAndHour(new Date(ticketGenerar)) : formatDateAndHour(new Date()));
         const result = await axios.post(API_URL_BASE + `appointments/store`, { // create
             date_programing: formatDateAndHourDB(new Date()),
             nro_documento: txtNumDoc.trim(),
@@ -385,6 +425,16 @@ const SearchAppointment = () => {
                         <center>
                             <h3>Programaciones para hoy {today}</h3>
                         </center>
+
+                        {ticketLimit &&
+                            <span>
+                                <br />
+                                <center>
+                                    <h3 className='alert-limit'>Limite de tickets alcanzados!</h3>
+                                </center>
+                            </span>
+                        }
+                        <br />
                         <div className="col-md-12">
 
                             <div className="row">
@@ -672,10 +722,6 @@ const SearchAppointment = () => {
                                                                 <td>{txtNumDoc ? txtNumDoc.toUpperCase() : ""}</td>
                                                             </tr>
                                                             <tr>
-                                                                <th className='title-column'>Paciente:</th>
-                                                                <td>{apellidos ? apellidos.toUpperCase() : ""} {nombres ? nombres.toUpperCase() : ""}</td>
-                                                            </tr>
-                                                            <tr>
                                                                 <th className='title-column'>Proyecto:</th>
                                                                 <td>{proyecto ? proyecto.toUpperCase() : ""}</td>
                                                             </tr>
@@ -738,19 +784,11 @@ const SearchAppointment = () => {
                                     </div>
                                 </div>
                                 </div>
-                                
 
-                                
-                                
-                                
-                                
                             </div>
-                            
                             <br/><br/>
                         </div>
-                    
-                        
-                            
+
                         </div>
                     </div>
                 </div>
