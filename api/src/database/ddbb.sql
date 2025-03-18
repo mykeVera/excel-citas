@@ -56,7 +56,7 @@ insert into db_excel_appointment.subsidiaries values
 (6,'HUANCAYO',now(),null,null),
 (7,'MOQUEGUA',now(),null,null),
 (8,'SAN BORJA',now(),null,null),
-(9,'TALARA',now(),null,null);
+(9,'TALARA',now(),null,null),
 (10,'OTROS',now(),null,null);
 
 insert into db_excel_appointment.users values
