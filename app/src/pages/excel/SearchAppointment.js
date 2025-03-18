@@ -78,8 +78,6 @@ const SearchAppointment = () => {
                 resolve(result2.data[0].ticket_limit);
             });
             promise2.then( async (tickets_limit) => {
-                console.log(parseInt(tickets_emit))
-                console.log(parseInt(tickets_limit))
                 if(parseInt(tickets_emit) >= parseInt(tickets_limit)){
                     setTicketLimit(true)
                 }else{

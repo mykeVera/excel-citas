@@ -14,6 +14,7 @@ const ImportAppointment = () => {
     const [appointments, setAappointments] = useState([]);
 
     const [items, setItems] = useState([]);
+    // const [itemsValidated, setItemsValidated] = useState([]);
     const [id_template, setIdTemplate] = useState();
     const [content, setContent] = useState('');
     const [content2, setContent2] = useState('');
@@ -105,7 +106,24 @@ const ImportAppointment = () => {
         });
         promise.then((d) => {
             if(d[0]['NUMERO DE DOCUMENTO']){ //validar todas las columnas
-                setItems(d);
+                const arregloSinDuplicados = d.filter ((objeto, index, self) => // RETIRAMOS DUPLICADOS
+                    index === self.findIndex((o) => 
+                        o['FECHA DE PROGRAMACION'] === objeto['FECHA DE PROGRAMACION'] &&
+                        o['LOCAL'] === objeto['LOCAL'] &&
+                        o['EMPRESA'] === objeto['EMPRESA'] &&
+                        o['SUBCONTRATA'] === objeto['SUBCONTRATA'] &&
+                        o['PERFIL'] === objeto['PERFIL'] &&
+                        o['TIPO DE EXAMEN'] === objeto['TIPO DE EXAMEN'] &&
+                        o['AREA'] === objeto['AREA'] &&
+                        o['PUESTO'] === objeto['PUESTO'] &&
+                        o['NUMERO DE DOCUMENTO'] === objeto['NUMERO DE DOCUMENTO'] &&
+                        o['APELLIDOS'] === objeto['APELLIDOS'] &&
+                        o['NOMBRES'] === objeto['NOMBRES'] &&
+                        o['OBSERVACION'] === objeto['OBSERVACION']
+                    )
+                );
+                setItems(arregloSinDuplicados);
+
                 ChangeAlertFormat(false);
                 setButtonImport(true)
             }else{
@@ -125,60 +143,156 @@ const ImportAppointment = () => {
             console.log("Importando Citas...")
             const today = new Date()
             const fecha_formateada = formatDate2(today)
-            const promise = new Promise( async (resolve) => { // SEARCH IN DDBB
-                console.log(config)
-                const result_softdelete = await axios.put(API_URL_BASE+`appointments/delete/${fecha_formateada}`);
-                resolve(result_softdelete.data);
-            });
-            promise.then( async (data_confirmed) => {
-                if(data_confirmed){
-                    for await(let it of items) { //INSERT ITEMS
-                        setTimeout( async () => {
-                            const promise = new Promise( async (resolve) => { // SEARCH IN DDBB
-                                const result_subsidiary = await axios.get(API_URL_BASE+`subsidiaries/get/${it['LOCAL']}`, config);
-                                resolve(result_subsidiary.data[0]);
-                                console.log(result_subsidiary.data[0])
-                            });
-                            promise.then( async (data_appointmen) => {
-                                cont++;
-                                setCounter(cont)
-    
+
+            // VERIFICAR SI YA EXISTE UNA CITA DE ESA CITA CON ESA FECHA EN ESPECIFICO
+
+            // 70251915 - 46199257 - 75395933 - 48453504
+            for await(let it of items){
+                let document = it['NUMERO DE DOCUMENTO'];
+                // let document = '48453504';
+                const promise = new Promise( async (resolve) => { // CONSULTAR NRO DE DOCUMENTO EN LA DDBB
+                    const result_ddbb = await axios.get(API_URL_BASE+`appointments/get/nro/all/${document}`, config);
+                    resolve(result_ddbb.data);
+                });
+                promise.then(async (patient_ddbb) => {
+                    // console.log(patient_ddbb)
+                    cont++;
+                    setCounter(cont)
+                    if(patient_ddbb.length === 0){ // SI NO SE ENCUENTRA REGISTROS
+                        console.log("PACIENTE NUEVO")
+                        const promise = new Promise( async (resolve) => { // ENCONTRAR EL ID DE LA SEDE
+                            const result_subsidiary = await axios.get(API_URL_BASE+`subsidiaries/get/${it['LOCAL']}`, config);
+                            resolve(result_subsidiary.data[0]);
+                        });
+                        promise.then( async (data_appointmen) => {
+                            // cont++;
+                            // setCounter(cont)
+
+                            const fecha_excel = String(it['FECHA DE PROGRAMACION'])
+                            const fecha_split = fecha_excel.split("-", 3)
+                            const fecha_custom = fecha_split[1] + "/" + fecha_split[0] + "/" +fecha_split[2]
+                            const fecha_format = formatDate2(new Date(fecha_custom))
+
+                            const result = await axios.post(API_URL_BASE + `appointments/store`, { // CREATE
+                                date_programing: fecha_format,
+                                nro_documento: it['NUMERO DE DOCUMENTO'],
+                                last_name: it['APELLIDOS'],
+                                first_name: it['NOMBRES'],
+                                company: it['EMPRESA'],
+                                subcontract: it['SUBCONTRATA'],
+                                protocol: it['PERFIL'],
+                                examen_type: it['TIPO DE EXAMEN'],
+                                area: it['AREA'],
+                                job_position: it['PUESTO'],
+                                project: null,
+                                cost_center: null,
+                                person_programmed: null,
+                                observation: it['OBSERVACION'],
+                                in_excel_programing: 1,
+                                id_subsidiary: data_appointmen.id_subsidiary
+                            }, config)
+                        })
+                    }else{ // SI ES DE 1 A MAS REGISTROS
+                        console.log("PACIENTE ENCONTRADO UNA O MAS DE UNA VEZ")
+                        for await(let db of patient_ddbb){
+                            if(String(db.nro_documento) === String(it['NUMERO DE DOCUMENTO'])){
                                 const fecha_excel = String(it['FECHA DE PROGRAMACION'])
                                 const fecha_split = fecha_excel.split("-", 3)
-                                const fecha_custom = fecha_split[1] + "/" + fecha_split[0] + "/" +fecha_split[2]
-                                const fecha_format = formatDate2(new Date(fecha_custom))
-    
-                                const result = await axios.post(API_URL_BASE + `appointments/store`, { // CREATE
-                                    date_programing: fecha_format,
-                                    nro_documento: it['NUMERO DE DOCUMENTO'],
-                                    last_name: it['APELLIDOS'],
-                                    first_name: it['NOMBRES'],
-                                    company: it['EMPRESA'],
-                                    subcontract: it['SUBCONTRATA'],
-                                    protocol: it['PERFIL'],
-                                    examen_type: it['TIPO DE EXAMEN'],
-                                    area: it['AREA'],
-                                    job_position: it['PUESTO'],
-                                    project: null,
-                                    cost_center: null,
-                                    person_programmed: null,
-                                    observation: it['OBSERVACION'],
-                                    in_excel_programing: 1,
-                                    id_subsidiary: data_appointmen.id_subsidiary
-                                }, config)
-                                if(cont === items.length){
-                                    ChangeConfirm(true)
-                                    setTimeout(() => {
-                                        navigate('/main/appointment/search');
-                                    }, 3000);
+                                const fecha_excel_format = fecha_split[0] + "/" + fecha_split[1] + "/" +fecha_split[2]
+
+                                console.log(db.nro_documento)
+                                // verificarmos si en el excel no existen datos y le asignamos null para comparar
+                                const excel_last_name = it['APELLIDOS'] ? it['APELLIDOS'] : null;
+                                const excel_first_name = it['NOMBRES'] ? it['NOMBRES'] : null;
+                                const excel_company = it['EMPRESA'] ? it['EMPRESA'] : null;
+                                const excel_subcontract = it['SUBCONTRATA'] ? it['SUBCONTRATA'] : null;
+                                const excel_protocol = it['PERFIL'] ? it['PERFIL'] : null;
+                                const excel_examen_type = it['TIPO DE EXAMEN'] ? it['TIPO DE EXAMEN'] : null;
+                                const excel_area = it['AREA'] ? it['AREA'] : null;
+                                const excel_job_position = it['PUESTO'] ? it['PUESTO'] : null;
+                                const excel_observation = it['OBSERVACION'] ? it['OBSERVACION'] : null;
+
+                                if(
+                                    db.date_programing === fecha_excel_format &&
+                                    db.last_name === excel_last_name &&
+                                    db.first_name === excel_first_name &&
+                                    db.company === excel_company &&
+                                    db.subcontract === excel_subcontract &&
+                                    db.protocol === excel_protocol &&
+                                    db.examen_type === excel_examen_type &&
+                                    db.area === excel_area &&
+                                    db.job_position === excel_job_position &&
+                                    // db.project === it[''] &&
+                                    // db.cost_center === it[''] &&
+                                    // db.person_programmed === it[''] &&
+                                    db.observation === excel_observation &&
+                                    db.subsidiary === it['LOCAL']
+                                ){
+                                    console.log('IF')
+                                    // ACTUALIZAR
+                                    if(!db.ticket_generate){ // SIEMPRE Y CUANDO NO ESTA EMITIDO, SE ACTUALIZA
+                                        console.log('no generado')
+
+                                        const fecha_ddbb = db.date_programing
+                                        const fecha_split = fecha_ddbb.split("/", 3)
+                                        const fecha_ddbb_format = fecha_split[2] + "-" + fecha_split[1] + "-" +fecha_split[0]
+
+                                        await axios.put(API_URL_BASE + `appointments/update/${db.id_appointment}`, {
+                                            date_programing: fecha_ddbb_format,
+                                            nro_documento: db.nro_documento,
+                                            last_name: db.last_name,
+                                            first_name: db.first_name,
+                                            company: db.company,
+                                            subcontract: db.subcontract,
+                                            protocol: db.protocol,
+                                            examen_type: db.examen_type,
+                                            area: db.area,
+                                            job_position: db.job_position,
+                                            project: db.project,
+                                            cost_center: db.cost_center,
+                                            person_programmed: db.person_programmed,
+                                            observation: db.observation,
+                                            ticket_time_init: db.ticket_time_init,
+                                            ticket_time_finish: db.ticket_time_finish,
+                                            ticket_generate: db.ticket_generate,
+                                            in_excel_programing: db.in_excel_programing,
+                                            id_subsidiary: db.id_subsidiary
+                                        }, config)
+                                    }
+                                }else{
+                                    console.log('ELSE')
+                                    // GRABAR
+
                                 }
-                            })
-                            
+                            }
+                        }
+                    }
+                    if(cont === items.length){
+                        ChangeConfirm(true)
+                        setTimeout(() => {
+                            // navigate('/main/appointment/search');
+                            console.log('*** FIN ***')
                         }, 3000);
                     }
-                }
+                });
+
+            }
+
+
+
+            // const promise = new Promise( async (resolve) => { // DELETE ITEMS
+            //     console.log(config)
+            //     const result_softdelete = await axios.put(API_URL_BASE+`appointments/delete/${fecha_formateada}`);
+            //     resolve(result_softdelete.data);
+            // });
+            // promise.then( async (data_confirmed) => { // INSERT ITEMS
+            //     if(data_confirmed){
+            //         for await(let it of items) { //INSERT ITEMS
+            //             
+            //         }
+            //     }
                 
-            })
+            // })
         }
     }
 
